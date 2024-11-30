@@ -12,8 +12,8 @@ namespace optiling {
         uint32_t totalLength = context->GetInputShape(0)->GetOriginShape().GetShapeSize();
         
         // 获取输入张量的维度信息
-        const uint32_t dimension = context->GetAttr<int32_t>("dimension");
-        const bool keepDims = context->GetAttr<bool>("keep_dims");
+        const uint32_t dimension = context->GetAttrs<int32_t>("dimension");
+        const bool keepDims = context->GetAttrs<bool>("keep_dims");
 
         // 设置 tiling 结构中的相关信息
         context->SetBlockDim(BLOCK_DIM);
@@ -47,10 +47,10 @@ namespace ge {
         *y_shape = *x1_shape;
 
         // 如果需要考虑 keepDims 属性，可能需要调整输出形状
-        bool keepDims = context->GetAttr<bool>("keep_dims");
+        bool keepDims = context->GetAttrs<bool>("keep_dims");
         if (!keepDims) {
             // 移除指定的维度
-            int32_t dimension = context->GetAttr<int32_t>("dimension");
+            int32_t dimension = context->GetAttrs<int32_t>("dimension");
             y_shape->RemoveDimension(dimension);
         }
 
@@ -65,7 +65,7 @@ namespace ops {
             // 定义输入和输出
             this->Input("x")
                 .ParamType(REQUIRED)
-                .DataType({ge::DT_FLOAT16, ge::DT_INT32, ge::DT_UINT8, ge::DT_FLOAT32})
+                .DataType({ge::DT_FLOAT16, ge::DT_INT32, ge::DT_UINT8, ge::DT_FLOAT})
                 .Format({ge::FORMAT_ND})
                 .UnknownShapeFormat({ge::FORMAT_ND});
             this->Output("indice")
@@ -75,7 +75,7 @@ namespace ops {
                 .UnknownShapeFormat({ge::FORMAT_ND});
             this->Output("values")
                 .ParamType(REQUIRED)
-                .DataType({ge::DT_FLOAT16, ge::DT_INT32, ge::DT_UINT8, ge::DT_FLOAT32})
+                .DataType({ge::DT_FLOAT16, ge::DT_INT32, ge::DT_UINT8, ge::DT_FLOAT})
                 .Format({ge::FORMAT_ND})
                 .UnknownShapeFormat({ge::FORMAT_ND});
             
