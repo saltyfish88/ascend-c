@@ -1,4 +1,4 @@
-#include "argmaxwithvalue_custom_tiling.h"
+#include "argmaxwithvalue_tiling.h"
 #include "register/op_def_registry.h"
 
 namespace optiling {
