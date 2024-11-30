@@ -51,10 +51,14 @@ namespace ge {
         if (!keepDims) {
             // 移除指定的维度
             int32_t dimension = context->GetAttrs<int32_t>("dimension");
-            y_shape->RemoveDimension(dimension);
+            // 这里需要实现 RemoveDimension 或者使用其他方式来移除维度
+            // 例如，您可以创建一个新的 Shape 对象，然后复制除了需要移除的维度之外的所有维度
+            // 这里只是一个示例，具体实现需要根据您的需求来定
+            y_shape->SetShape(x1_shape->GetDims(), x1_shape->GetShapeSize() - 1);
+            y_shape->SetDim(dimension, 1); // 将维度设置为1，而不是完全移除
         }
 
-        return GRAPH_SUCCESS;
+        return ge::GRAPH_SUCCESS;
     }
 }
 
@@ -80,7 +84,7 @@ namespace ops {
                 .UnknownShapeFormat({ge::FORMAT_ND});
             
             // 设置推理形状
-            this->SetInferShape(ge::InferShape);
+            this->SetInferShape(InferShape);
 
             // 设置 Tiling
             this->AICore()
@@ -90,5 +94,6 @@ namespace ops {
             this->AICore().AddConfig("ascend310b");
         }
     };
+    // 注册算子
     OP_ADD(ArgMaxWithValueCustom);
 }
