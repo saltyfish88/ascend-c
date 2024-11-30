@@ -13,8 +13,18 @@ namespace optiling {
         uint32_t totalLength = context->GetInputShape(0)->GetOriginShape().GetShapeSize();
         
         // 获取输入张量的维度信息
-        const uint32_t dimension = context->GetAttrs<int32_t>("dimension");
-        const bool keepDims = context->GetAttrs<bool>("keep_dims");
+        // 正确获取属性值
+        std::map<std::string, ge::AttrValue> attrs = context->GetAttrs();
+        auto dimensionIt = attrs.find("dimension");
+        auto keepDimsIt = attrs.find("keep_dims");
+
+        if (dimensionIt == attrs.end() || keepDimsIt == attrs.end()) {
+            // 属性未找到，返回错误
+            return ge::GRAPH_FAILED;
+        }
+
+        const uint32_t dimension = dimensionIt->second.Get<int32_t>();
+        const bool keepDims = keepDimsIt->second.Get<bool>();
 
         // 设置 tiling 结构中的相关信息
         context->SetBlockDim(BLOCK_DIM);
@@ -47,11 +57,23 @@ namespace ge {
         // 对于 ArgMaxWithValue 算子，输出形状和输入形状在维度上通常一致
         *y_shape = *x1_shape;
 
-        // 如果需要考虑 keepDims 属性，可能需要调整输出形状
-        bool keepDims = context->GetAttrs<bool>("keep_dims");
+        // 正确获取属性值
+        std::map<std::string, ge::AttrValue> attrs = context->GetAttrs();
+        auto keepDimsIt = attrs.find("keep_dims");
+        auto dimensionIt = attrs.find("dimension");
+
+        if (keepDimsIt == attrs.end() || dimensionIt == attrs.end()) {
+            // 属性未找到，返回错误
+            return ge::GRAPH_FAILED;
+        }
+
+        bool keepDims = keepDimsIt->second.Get<bool>();
+        int32_t dimension = dimensionIt->second.Get<int32_t>();
+
         if (!keepDims) {
             // 移除指定的维度
-            int32_t dimension = context->GetAttrs<int32_t>("dimension");
+            // 注意：这里的实现取决于 Shape 类的具体实现
+            // 以下代码仅为示例，可能需要根据您的 Shape 类进行调整
             y_shape->RemoveDimension(dimension);
         }
 

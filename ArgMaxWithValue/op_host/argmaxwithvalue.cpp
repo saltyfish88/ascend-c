@@ -1,5 +1,6 @@
 #include "argmaxwithvalue_tiling.h"
 #include "register/op_def_registry.h"
+#include "kernel_operator.h"
 
 namespace optiling {
     static ge::graphStatus TilingFunc(gert::TilingContext* context) {
@@ -12,26 +13,37 @@ namespace optiling {
         uint32_t totalLength = context->GetInputShape(0)->GetOriginShape().GetShapeSize();
         
         // 获取输入张量的维度信息
-        const uint32_t dimension = context->GetAttrs<int32_t>("dimension");
-        const bool keepDims = context->GetAttrs<bool>("keep_dims");
+        // 假设 dimension 和 keep_dims 是作为属性传递给算子的
+        // 我们需要从 context 中正确地获取这些属性值
+        std::map<std::string, ge::AttrValue> attrs = context->GetAttrs();
+        auto dimensionIt = attrs.find("dimension");
+        auto keepDimsIt = attrs.find("keep_dims");
+        
+        if (dimensionIt != attrs.end() && keepDimsIt != attrs.end()) {
+            const uint32_t dimension = dimensionIt->second.Get<int32_t>();
+            const bool keepDims = keepDimsIt->second.Get<bool>();
 
-        // 设置 tiling 结构中的相关信息
-        context->SetBlockDim(BLOCK_DIM);
-        tiling.set_totalLength(totalLength);
-        tiling.set_tileNum(TILE_NUM);
-        tiling.set_dimension(dimension);
-        tiling.set_keepDims(keepDims);
+            // 设置 tiling 结构中的相关信息
+            context->SetBlockDim(BLOCK_DIM);
+            tiling.set_totalLength(totalLength);
+            tiling.set_tileNum(TILE_NUM);
+            tiling.set_dimension(dimension);
+            tiling.set_keepDims(keepDims);
 
-        // 将 tiling 数据保存到 buffer 中
-        tiling.SaveToBuffer(context->GetRawTilingData()->GetData(),
-                            context->GetRawTilingData()->GetCapacity());
+            // 将 tiling 数据保存到 buffer 中
+            tiling.SaveToBuffer(context->GetRawTilingData()->GetData(),
+                                context->GetRawTilingData()->GetCapacity());
 
-        // 设置 tiling 数据的大小
-        context->GetRawTilingData()->SetDataSize(tiling.GetDataSize());
+            // 设置 tiling 数据的大小
+            context->GetRawTilingData()->SetDataSize(tiling.GetDataSize());
 
-        // 设置工作空间大小（如果有其他要求的话）
-        size_t* currentWorkspace = context->GetWorkspaceSizes(1);
-        currentWorkspace[0] = 0;
+            // 设置工作空间大小（如果有其他要求的话）
+            size_t* currentWorkspace = context->GetWorkspaceSizes(1);
+            currentWorkspace[0] = 0;
+        } else {
+            // 属性未找到，返回错误
+            return ge::GRAPH_FAILED;
+        }
 
         return ge::GRAPH_SUCCESS;
     }
@@ -47,15 +59,23 @@ namespace ge {
         *y_shape = *x1_shape;
 
         // 如果需要考虑 keepDims 属性，可能需要调整输出形状
-        bool keepDims = context->GetAttrs<bool>("keep_dims");
-        if (!keepDims) {
-            // 移除指定的维度
-            int32_t dimension = context->GetAttrs<int32_t>("dimension");
-            // 这里需要实现 RemoveDimension 或者使用其他方式来移除维度
-            // 例如，您可以创建一个新的 Shape 对象，然后复制除了需要移除的维度之外的所有维度
-            // 这里只是一个示例，具体实现需要根据您的需求来定
-            y_shape->SetShape(x1_shape->GetDims(), x1_shape->GetShapeSize() - 1);
-            y_shape->SetDim(dimension, 1); // 将维度设置为1，而不是完全移除
+        std::map<std::string, ge::AttrValue> attrs = context->GetAttrs();
+        auto keepDimsIt = attrs.find("keep_dims");
+        auto dimensionIt = attrs.find("dimension");
+        
+        if (keepDimsIt != attrs.end() && dimensionIt != attrs.end()) {
+            bool keepDims = keepDimsIt->second.Get<bool>();
+            int32_t dimension = dimensionIt->second.Get<int32_t>();
+
+            if (!keepDims) {
+                // 移除指定的维度
+                // 注意：这里的实现取决于 Shape 类的具体实现
+                // 以下代码仅为示例，可能需要根据您的 Shape 类进行调整
+                y_shape->RemoveDimension(dimension);
+            }
+        } else {
+            // 属性未找到，返回错误
+            return ge::GRAPH_FAILED;
         }
 
         return ge::GRAPH_SUCCESS;
@@ -94,6 +114,5 @@ namespace ops {
             this->AICore().AddConfig("ascend310b");
         }
     };
-    // 注册算子
     OP_ADD(ArgMaxWithValueCustom);
 }
