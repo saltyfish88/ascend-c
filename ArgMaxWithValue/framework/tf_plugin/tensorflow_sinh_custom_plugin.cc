@@ -16,8 +16,8 @@ rights reserved.
 
 namespace domi {
 // register op info to GE
-REGISTER_CUSTOM_OP("SinhCustom")
+REGISTER_CUSTOM_OP("ArgMaxWithValue")
     .FrameworkType(TENSORFLOW)   // type: CAFFE, TENSORFLOW
-    .OriginOpType("SinhCustom")      // name in tf module
+    .OriginOpType("ArgMaxWithValue")      // name in tf module
     .ParseParamsByOperatorFn(AutoMappingByOpFn);
 }  // namespace domi
