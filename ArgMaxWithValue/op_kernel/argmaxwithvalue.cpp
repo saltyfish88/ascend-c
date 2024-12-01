@@ -110,7 +110,7 @@ namespace ops {
                 .SetTiling(optiling::TilingFunc);
 
             // 配置
-            this->AICore().AddConfig("ascend310b");
+            this->AICore().AddConfig("ascend910b");
         }
     };
     OP_ADD(ArgMaxWithValueCustom);
