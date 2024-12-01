@@ -1,9 +1,9 @@
 #include "kernel_operator.h"
 using namespace AscendC;
 constexpr int32_t BUFFER_NUM = 2;
-class KernelaSinh {
+class KernelAsinh {
 public:
- __aicore__ inline KernelaSinh() {}
+ __aicore__ inline KernelAsinh() {}
  __aicore__ inline void Init(GM_ADDR x, GM_ADDR y, uint32_t totalLength, uint32_t 
 tileNum)
  {
@@ -102,7 +102,7 @@ private:
  uint32_t tileNum;
  uint32_t tileLength;
 };
-extern "C" __global__ __aicore__ void asinh_custom(GM_ADDR x, GM_ADDR y, GM_ADDR 
+extern "C" __global__ __aicore__ void Asinh_custom(GM_ADDR x, GM_ADDR y, GM_ADDR 
 workspace, GM_ADDR tiling) {
  GET_TILING_DATA(tiling_data, tiling);
  KernelaSinh op;

@@ -1,6 +1,6 @@
 [
     {
-        "op": "aSinhCustom",
+        "op": "AsinhCustom",
         "language":"cpp",
         "input_desc": [
             {

@@ -49,6 +49,6 @@ public:
  this->AICore().AddConfig("ascend910b");
  }
 };
-OP_ADD(aSinhCustom);
+OP_ADD(AsinhCustom);
 }
 
