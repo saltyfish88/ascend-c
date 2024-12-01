@@ -105,7 +105,7 @@ private:
 extern "C" __global__ __aicore__ void Asinh_custom(GM_ADDR x, GM_ADDR y, GM_ADDR 
 workspace, GM_ADDR tiling) {
  GET_TILING_DATA(tiling_data, tiling);
- KernelaSinh op;
+ KernelAsinh op;
  //补充 init 和 process 函数调用内容
  op.Init(x, y, tiling_data.totalLength, tiling_data.tileNum);
  op.Process();

@@ -29,9 +29,9 @@ static ge::graphStatus InferShape(gert::InferShapeContext* context)
 }
 }
 namespace ops {
-class aSinhCustom : public OpDef {
+class AsinhCustom : public OpDef {
 public:
- explicit aSinhCustom(const char* name) : OpDef(name)
+ explicit AsinhCustom(const char* name) : OpDef(name)
  {
  this->Input("x")
  .ParamType(REQUIRED)
