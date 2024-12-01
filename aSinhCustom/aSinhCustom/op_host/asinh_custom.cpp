@@ -3,7 +3,7 @@
 namespace optiling {
 static ge::graphStatus TilingFunc(gert::TilingContext* context)
 {
- aSinhCustomTilingData tiling;
+AsinhCustomTilingData tiling;
  //考生自行填充
  const uint32_t BLOCK_DIM = 8;
  const uint32_t TILE_NUM = 8;
